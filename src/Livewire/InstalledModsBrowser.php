@@ -2,6 +2,7 @@
 
 namespace FreshDoktor\MinecraftModsAddon\Livewire;
 
+use App\Facades\Activity;
 use App\Models\Server;
 use Boy132\MinecraftModrinth\Enums\ModrinthProjectType;
 use Boy132\MinecraftModrinth\Facades\MinecraftModrinth;
@@ -555,6 +556,13 @@ class InstalledModsBrowser extends Component implements HasActions, HasSchemas, 
 
                         $this->forgetMods(true);
 
+                        if ($linked > 0) {
+                            Activity::event('server:mod.link-detected')
+                                ->subject($this->getServer())
+                                ->property('count', $linked)
+                                ->log();
+                        }
+
                         Notification::make()
                             ->title(trans('minecraft-mods-addon::strings.mods.notifications.linked_detected', ['count' => $linked]))
                             ->success()
@@ -647,6 +655,15 @@ class InstalledModsBrowser extends Component implements HasActions, HasSchemas, 
                         }
 
                         $this->forgetMods(true);
+
+                        Activity::event('server:mod.update')
+                            ->subject($this->getServer())
+                            ->property([
+                                'name' => $record['title'],
+                                'version' => $version['version_number'] ?? '',
+                                'file' => $mod['filename'],
+                            ])
+                            ->log();
 
                         Notification::make()
                             ->title(trans('minecraft-mods-addon::strings.mods.notifications.updated'))
@@ -742,6 +759,15 @@ class InstalledModsBrowser extends Component implements HasActions, HasSchemas, 
 
                         $this->forgetMods(true);
 
+                        Activity::event('server:mod.link')
+                            ->subject($this->getServer())
+                            ->property([
+                                'file' => $mod['filename'],
+                                'name' => $project['title'],
+                                'version' => $version['version_number'] ?? '',
+                            ])
+                            ->log();
+
                         Notification::make()
                             ->title(trans('minecraft-mods-addon::strings.mods.notifications.linked'))
                             ->body(trans('minecraft-mods-addon::strings.mods.notifications.linked_body', [
@@ -762,7 +788,9 @@ class InstalledModsBrowser extends Component implements HasActions, HasSchemas, 
                     ->modalDescription(fn (array $record) => trans($record['size'] === null ? 'minecraft-mods-addon::strings.mods.unlink.missing_description' : 'minecraft-mods-addon::strings.mods.unlink.description', ['file' => $record['filename']]))
                     ->action(function (array $record) {
                         try {
-                            $this->service()->unlinkMod($this->getServer(), $this->service()->validateFilename((string) $record['filename']));
+                            $filename = $this->service()->validateFilename((string) $record['filename']);
+
+                            $this->service()->unlinkMod($this->getServer(), $filename);
                         } catch (Exception $exception) {
                             $this->forgetMods();
                             $this->notifyFailure(trans('minecraft-mods-addon::strings.mods.notifications.unlink_failed'), $exception);
@@ -771,6 +799,14 @@ class InstalledModsBrowser extends Component implements HasActions, HasSchemas, 
                         }
 
                         $this->forgetMods(true);
+
+                        Activity::event('server:mod.unlink')
+                            ->subject($this->getServer())
+                            ->property([
+                                'name' => $record['title'],
+                                'file' => $filename,
+                            ])
+                            ->log();
 
                         Notification::make()
                             ->title(trans('minecraft-mods-addon::strings.mods.notifications.unlinked'))
@@ -801,6 +837,11 @@ class InstalledModsBrowser extends Component implements HasActions, HasSchemas, 
                         }
 
                         $this->forgetMods(true);
+
+                        Activity::event('server:mod.delete')
+                            ->subject($this->getServer())
+                            ->property('file', $mod['filename'])
+                            ->log();
 
                         Notification::make()
                             ->title(trans('minecraft-mods-addon::strings.mods.notifications.deleted'))
