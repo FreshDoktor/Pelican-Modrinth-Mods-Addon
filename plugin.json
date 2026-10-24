@@ -1,0 +1,18 @@
+{
+    "id": "minecraft-mods-addon",
+    "name": "Minecraft Mods Addon",
+    "author": "FreshDoktor",
+    "version": "1.0.0",
+    "description": "Addon for Minecraft Modrinth by Boy132: lists every mod on the server, including the ones uploaded by hand, and links them to Modrinth",
+    "category": "plugin",
+    "url": "https://github.com/FreshDoktor/Pelican-Modrinth-Mods-Addon",
+    "update_url": null,
+    "namespace": "FreshDoktor\\MinecraftModsAddon",
+    "class": "MinecraftModsAddonPlugin",
+    "panels": [
+        "server"
+    ],
+    "panel_version": null,
+    "api_version": 1,
+    "composer_packages": null
+}
