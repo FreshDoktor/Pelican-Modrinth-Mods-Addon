@@ -29,7 +29,7 @@ class ModsBrowser extends MinecraftModrinthModPage
     #[Locked]
     public ?string $activeTab = null;
 
-    public static function make(bool $installedOnly): LivewireComponent
+    public static function makeComponent(bool $installedOnly): LivewireComponent
     {
         return LivewireComponent::make(static::class, [
             'installedOnly' => $installedOnly,

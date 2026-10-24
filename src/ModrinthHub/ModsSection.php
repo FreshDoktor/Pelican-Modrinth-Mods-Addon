@@ -56,7 +56,7 @@ class ModsSection
     {
         $browser = $installedOnly ? ModrinthHub::getInstalledModsBrowser() : null;
 
-        return $browser ? $browser::make($server) : ModsBrowser::make($installedOnly);
+        return $browser ? $browser::make($server) : ModsBrowser::makeComponent($installedOnly);
     }
 
     /** @return array<Action> */
